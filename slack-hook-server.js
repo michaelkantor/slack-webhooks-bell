@@ -2,69 +2,39 @@ var https = require('https');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser').urlencoded({extended: false});
+var request = require('request');
 
-
-var tessel = require('tessel');
-var servolib = require('servo-pca9685');
-var servo = servolib.use(tessel.port['A']);
-var servo1 = 1; // We have a servo plugged in at position 1
-var servoStopValue = 0.385;
 
 app.use(bodyParser);
 
-servo.on('ready', function () {
-    console.log("SERVO READY");
-    var position = 0;  //  Target position of the servo between 0 (min) and 1 (max).
-
-
-	// respond with "hello world" when a GET request is made to the homepage
-    app.get('/', function(req, res) {
-	var value = Number(req.query.move_value);
-	console.log("RECEIVED GET: " + value);
-	if (!isNaN(value)) {
-	    try {
-		servo.move(servo1, value);
-	    } catch(e) {
-		console.error(e);
-	    }
-	}
-	console.log("OK");
-	res.status(200).send('OK2')
-    });
-
-    function ding() {
-	try {
-	    console.log("FULL FORWARD");
-	    servo.move(servo1, 1);
-	    setTimeout(function() {
-		console.log("STOP");
-		servo.move(servo1, servoStopValue);
-	    }, 220);
-	} catch(e) {
-	    console.error(e);
-	}
-    }
-
-    app.post('/', function(req, res) {
-	console.log("RECEIVED POST");
-	    var matches = req.body.text.match(/:bell:/g) || [];
-	    var count = Math.min(4, matches.length);
-	    console.log("Message received; count: " + count);
-	    for (var i = 0; i < count; i++ ) {
-		setTimeout(function() {
-		    ding();
-		}, 500 * i);
-	    }
-	    res.status(200).send('OK')
-	});
+app.get('/', function(req, res) {
+  var value = Number(req.query.move_value);
+  console.log("GET REQUEST IGNORED");
+  res.status(200).send('OK')
 });
+
+app.post('/', function(req, res) {
+  console.log("RECEIVED POST");
+  var matches = req.body.text.match(/:bell:/g) || [];
+  var count = matches.length;
+  if (count) {
+    request('http://10.0.1.11:9019/move_count=' + count)
+    console.log("Message received; count: " + count);
+  }
+  res.status(200).send('OK')
+});
+
 
 var fs = require('fs');
 try {
+  key = fs.readFileSync('./ssl/server.key');
+  cert= fs.readFileSync('./ssl/server.crt');
+  ca  = fs.readFileSync('./ssl/ca.crt');
   var secureServer = https.createServer({
     key: key,
     cert: cert,
-    requestCert: false,
+    ca: ca,
+    requestCert: true,
     rejectUnauthorized: false
   }, app);
 } catch(e) {
@@ -72,8 +42,8 @@ try {
 }
 if (secureServer) app = secureServer;
 
-
+var PORT = 3009;
 // Listen on port 8080, IP defaults to 192.168.1.101. Also accessible through [tessel-name].local
-app.listen(8080);
+app.listen(PORT);
 
-console.log("Server running at http://192.168.1.101:8080/");
+console.log("Server running on port " + PORT);
