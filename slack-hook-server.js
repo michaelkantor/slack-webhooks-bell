@@ -3,7 +3,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser').urlencoded({extended: false});
 var request = require('request');
-
+var BELL_REQUEST = 'http://10.0.1.11:9019/move_count=';
 
 app.use(bodyParser);
 
@@ -18,13 +18,13 @@ app.post('/', function(req, res) {
   var matches = req.body.text.match(/:bell:/g) || [];
   var count = matches.length;
   if (count) {
-    request('http://10.0.1.11:9019/move_count=' + count)
     console.log("Message received; count: " + count);
+    request(BELL_REQUEST + count)
   }
   res.status(200).send('OK')
 });
 
-
+/*
 var fs = require('fs');
 try {
   key = fs.readFileSync('./ssl/server.key');
@@ -41,7 +41,7 @@ try {
   console.error('FAILED: ', e);
 }
 if (secureServer) app = secureServer;
-
+*/
 var PORT = 3009;
 // Listen on port 8080, IP defaults to 192.168.1.101. Also accessible through [tessel-name].local
 app.listen(PORT);
