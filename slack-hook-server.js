@@ -3,7 +3,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser').urlencoded({extended: false});
 var request = require('request');
-var BELL_REQUEST = 'http://10.0.1.11:9019/move_count=';
+var BELL_REQUEST = 'http://96.86.160.145:2355/?move_count=';
 
 app.use(bodyParser);
 
@@ -24,12 +24,13 @@ app.post('/', function(req, res) {
   res.status(200).send('OK')
 });
 
-/*
+
 var fs = require('fs');
 try {
-  key = fs.readFileSync('./ssl/server.key');
-  cert= fs.readFileSync('./ssl/server.crt');
-  ca  = fs.readFileSync('./ssl/ca.crt');
+  key = fs.readFileSync('./ssl2/key.pem');
+  cert= fs.readFileSync('./ssl2/server.crt');
+  ca= fs.readFileSync('./ssl2/csr.pem');
+
   var secureServer = https.createServer({
     key: key,
     cert: cert,
@@ -41,7 +42,7 @@ try {
   console.error('FAILED: ', e);
 }
 if (secureServer) app = secureServer;
-*/
+
 var PORT = 3009;
 // Listen on port 8080, IP defaults to 192.168.1.101. Also accessible through [tessel-name].local
 app.listen(PORT);
