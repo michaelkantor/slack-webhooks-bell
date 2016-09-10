@@ -1,3 +1,4 @@
+// External IP Address is `96.86.160.145`; Internal IP Address is 10.0.17.73; external port `2355` internal port is 8080
 var https = require('https');
 var express = require('express');
 var app = express();
@@ -55,21 +56,6 @@ servo.on('ready', function () {
     }
 });
 
-/*var fs = require('fs');
-try {
-  var secureServer = https.createServer({
-    key: key,
-    cert: cert,
-    requestCert: false,
-    rejectUnauthorized: false
-  }, app);
-} catch(e) {
-  console.error('FAILED: ', e);
-}
-if (secureServer) app = secureServer;
-*/
-
-// Listen on port 9019, IP defaults to 192.168.1.101. Also accessible through [tessel-name].local
-app.listen(9019);
+app.listen(8080);
 
 console.log("Server running at http://xxx.xxxx.xxx.xxx:9019/ - use t2 wifi");
